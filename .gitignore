@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+data/*.sqlite
+data/*.sqlite-*
+.ruff_cache/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+uvicorn.*.log

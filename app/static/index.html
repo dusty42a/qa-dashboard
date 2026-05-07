@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>QA Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <h1>QA Dashboard</h1>
+        <p class="muted">Pick a target version.</p>
+    </header>
+
+    <main>
+        <p id="status" class="muted">Loading versions…</p>
+
+        <section id="featured" class="featured" hidden>
+            <div class="featured-card current" id="featured-current" hidden>
+                <span class="featured-label">Current release</span>
+                <a class="featured-name" href="#"></a>
+                <span class="featured-meta muted"></span>
+            </div>
+            <div class="featured-card previous" id="featured-previous" hidden>
+                <span class="featured-label">Previous release</span>
+                <a class="featured-name" href="#"></a>
+                <span class="featured-meta muted"></span>
+            </div>
+        </section>
+
+        <h2 class="all-versions-heading" id="all-heading" hidden>All versions</h2>
+        <div id="version-groups"></div>
+    </main>
+
+    <footer>
+        <span id="last-fetched" class="muted"></span>
+    </footer>
+
+    <script src="/static/landing.js"></script>
+</body>
+</html>

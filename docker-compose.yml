@@ -1,0 +1,10 @@
+services:
+  qa-dashboard:
+    build: .
+    container_name: qa-dashboard
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "${PORT:-8080}:8080"
+    volumes:
+      - ./data:/data

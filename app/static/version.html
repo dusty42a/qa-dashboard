@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>QA Dashboard — version</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <header>
+        <p><a href="/">&larr; All versions</a></p>
+        <h1 id="title">Loading…</h1>
+        <p id="status" class="muted"></p>
+    </header>
+
+    <main>
+        <div id="not-found" hidden>
+            <h2>Version not found</h2>
+            <p>That target version doesn't exist in Redmine (or hasn't synced yet).</p>
+            <p><a href="/">Back to the landing page</a></p>
+        </div>
+
+        <div id="status-chart-wrap" class="chart-wrap" hidden>
+            <canvas id="status-chart" width="180" height="180"></canvas>
+            <div id="status-legend" class="chart-legend"></div>
+            <div id="top-risks" class="top-risks" hidden>
+                <h3 class="top-risks-heading">Top risks</h3>
+                <ol class="top-risks-list"></ol>
+            </div>
+        </div>
+
+        <div id="issues" class="issues" hidden>
+            <div class="issue-row issue-header">
+                <span class="col-id">Ref</span>
+                <span class="col-subject">Subject</span>
+                <span class="col-assigned">Assigned</span>
+                <span class="col-priority">Priority</span>
+                <span class="col-status">Status</span>
+                <span class="col-risk">Risk</span>
+            </div>
+            <div id="issues-list"></div>
+        </div>
+    </main>
+
+    <footer>
+        <span id="last-fetched" class="muted"></span>
+    </footer>
+
+    <script src="/static/version.js"></script>
+</body>
+</html>
