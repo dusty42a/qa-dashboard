@@ -181,22 +181,24 @@ function bindRowBehavior(row, issue, redmineBase, details) {
 
 function renderIssue(issue, redmineBase) {
     const hasCommits = !!(issue.changesets && issue.changesets.length);
+    let el;
     if (!hasCommits) {
-        const row = renderIssueSummary(issue, false);
-        bindRowBehavior(row, issue, redmineBase, null);
-        return row;
+        el = renderIssueSummary(issue, false);
+        bindRowBehavior(el, issue, redmineBase, null);
+    } else {
+        el = document.createElement("details");
+        el.className = "issue";
+        const summary = renderIssueSummary(issue, true);
+        el.appendChild(summary);
+        bindRowBehavior(summary, issue, redmineBase, el);
+        const ul = document.createElement("ul");
+        ul.className = "changesets";
+        for (const cs of issue.changesets) ul.appendChild(renderChangeset(cs));
+        el.appendChild(ul);
     }
-    const details = document.createElement("details");
-    details.className = "issue";
-    const summary = renderIssueSummary(issue, true);
-    details.appendChild(summary);
-    bindRowBehavior(summary, issue, redmineBase, details);
-
-    const ul = document.createElement("ul");
-    ul.className = "changesets";
-    for (const cs of issue.changesets) ul.appendChild(renderChangeset(cs));
-    details.appendChild(ul);
-    return details;
+    el.dataset.ref = String(issue.id);
+    el.dataset.subject = (issue.subject || "").toLowerCase();
+    return el;
 }
 
 const CHART_COLORS = [
@@ -311,6 +313,7 @@ async function loadVersion() {
 
     const title = document.getElementById("title");
     const status = document.getElementById("status");
+    const issueCountBar = document.getElementById("issue-count-bar");
     const issueCount = document.getElementById("issue-count");
     const notFound = document.getElementById("not-found");
     const issuesEl = document.getElementById("issues");
@@ -344,8 +347,9 @@ async function loadVersion() {
             list.appendChild(renderIssue(issue, redmineBase));
         }
         status.innerHTML = '<a href="/">← All versions</a>';
-        issueCount.textContent = '(' + data.issues.length + ' issues)';
-        issueCount.hidden = false;
+        issueCount.textContent = data.issues.length + ' issues';
+        document.getElementById("issue-filter").value = "";
+        issueCountBar.hidden = false;
         if (data.last_fetched_at) {
             lastFetched.textContent = "Upstream last refreshed: " + data.last_fetched_at;
         } else {
@@ -356,5 +360,36 @@ async function loadVersion() {
     }
 }
 
+function initFilter() {
+    const input = document.getElementById("issue-filter");
+    const issueCount = document.getElementById("issue-count");
+    input.addEventListener("input", () => {
+        const term = input.value.trim().toLowerCase();
+        const isRefSearch = /^#?\d+$/.test(term);
+        const refNum = term.replace(/^#/, "");
+        const items = document.querySelectorAll("#issues-list > *");
+        let visible = 0;
+
+        let useExact = false;
+        if (isRefSearch) {
+            useExact = Array.from(items).some(el => el.dataset.ref === refNum);
+        }
+
+        items.forEach(el => {
+            const match = !term || (
+                isRefSearch
+                    ? (useExact ? el.dataset.ref === refNum : el.dataset.ref.includes(refNum))
+                    : el.dataset.subject.includes(term)
+            );
+            el.style.display = match ? "" : "none";
+            if (match) visible++;
+        });
+        issueCount.textContent = term
+            ? visible + " of " + items.length + " issues"
+            : items.length + " issues";
+    });
+}
+
 loadVersion();
 setInterval(loadVersion, 60000);
+initFilter();

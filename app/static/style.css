@@ -52,6 +52,8 @@ main { margin-top: 0.75rem; }
 }
 .featured-card.current { border-color: #2c7a3a; box-shadow: 0 0 0 2px rgba(44, 122, 58, 0.1); }
 .featured-card.previous { border-color: #888; }
+.issue-count-badge { color: #2c7a3a; font-weight: 600; }
+
 .featured-label {
     text-transform: uppercase;
     letter-spacing: 0.06em;
@@ -67,6 +69,46 @@ main { margin-top: 0.75rem; }
 }
 .featured-name:hover { text-decoration: underline; }
 .featured-meta { font-size: 0.85em; }
+
+.patch-queue-section {
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: #fff;
+    padding: 1rem 1.25rem;
+    margin: 0 0 1rem;
+}
+.patch-queue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-bottom: 0.6rem;
+    margin-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+}
+.patch-queue-header-right {
+    display: flex;
+    gap: 1rem;
+    align-items: baseline;
+}
+.patch-queue-issues {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.pq-issue {
+    display: grid;
+    grid-template-columns: 5rem 1fr 9rem;
+    gap: 0.75rem;
+    align-items: baseline;
+    padding: 0.3rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9em;
+}
+.pq-issue:last-child { border-bottom: none; }
+.pq-ref { font-weight: 600; text-decoration: none; color: var(--fg); }
+.pq-ref:hover { text-decoration: underline; }
+.pq-subject { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pq-status { color: var(--muted); }
 
 .all-versions-heading {
     font-size: 0.95rem;
@@ -193,8 +235,25 @@ main { margin-top: 0.75rem; }
 /* Issue rows: 6-column grid shared by header + each issue summary.
    Order: Ref · Subject (600px) · Assigned · Priority · Status · Risk. */
 .issues { margin-top: 1rem; }
-#issues-list { max-height: 500px; overflow-y: auto; }
-#issue-count { margin: 0 0 0.5rem; }
+#issues-scroll { height: 460px; overflow-y: auto; }
+.issue-header { position: sticky; top: 0; z-index: 1; }
+#issues-list { }
+.issue-count-bar {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 0.5rem;
+}
+.issue-filter {
+    font-size: 0.85em;
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    width: 260px;
+    color: var(--fg);
+    background: #fff;
+}
+.issue-filter:focus { outline: none; border-color: #888; }
 .issue-row {
     display: grid;
     grid-template-columns: 5.5rem 1fr 9rem 6rem 7rem 5rem;

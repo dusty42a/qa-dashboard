@@ -64,9 +64,84 @@ function renderFeaturedCard(el, version) {
     link.textContent = version.name;
     link.href = "/v/" + encodeURIComponent(version.name);
     const meta = el.querySelector(".featured-meta");
+    meta.innerHTML = "";
     const bits = [version.status];
     if (version.due_date) bits.push("due " + version.due_date);
-    meta.textContent = bits.join(" · ");
+    meta.appendChild(document.createTextNode(bits.join(" · ")));
+    if (version.issue_count) {
+        meta.appendChild(document.createTextNode(" · "));
+        const badge = document.createElement("span");
+        badge.className = "issue-count-badge";
+        badge.textContent = version.issue_count + " issues";
+        meta.appendChild(badge);
+    }
+}
+
+function findPatchQueue(versions) {
+    let best = null;
+    // Prefer open 3-part release versions; fall back to any status.
+    for (const open of [true, false]) {
+        for (const v of versions) {
+            const parsed = parseRelease(v.name);
+            if (!parsed || parsed[2] === 0) continue;
+            if (open && v.status !== "open") continue;
+            if (!best || compare(parsed, best._parsed) > 0) {
+                best = { ...v, _parsed: parsed };
+            }
+        }
+        if (best) break;
+    }
+    return best;
+}
+
+async function renderPatchQueue(versions) {
+    const section = document.getElementById("patch-queue-section");
+    const patchQueue = findPatchQueue(versions);
+    if (!patchQueue) { section.hidden = true; return; }
+
+    section.querySelector(".patch-queue-name").textContent = patchQueue.name;
+    section.querySelector(".patch-queue-name").href = "/v/" + encodeURIComponent(patchQueue.name);
+    const bits = [patchQueue.status];
+    if (patchQueue.due_date) bits.push("due " + patchQueue.due_date);
+    section.querySelector(".patch-queue-meta").textContent = bits.join(" · ");
+    section.hidden = false;
+
+    try {
+        const resp = await fetch("/api/v/" + encodeURIComponent(patchQueue.name));
+        if (!resp.ok) return;
+        const data = await resp.json();
+        const rb = (data.redmine_base || "").replace(/\/+$/, "");
+
+        const countEl = section.querySelector(".patch-queue-count");
+        countEl.textContent = data.issues.length + " issues";
+
+        const list = section.querySelector(".patch-queue-issues");
+        list.innerHTML = "";
+        for (const issue of data.issues) {
+            const li = document.createElement("li");
+            li.className = "pq-issue";
+
+            const ref = document.createElement("a");
+            ref.className = "pq-ref";
+            ref.href = rb + "/issues/" + issue.id;
+            ref.target = "_blank";
+            ref.rel = "noopener noreferrer";
+            ref.textContent = "#" + issue.id;
+            li.appendChild(ref);
+
+            const subj = document.createElement("span");
+            subj.className = "pq-subject";
+            subj.textContent = issue.subject || "";
+            li.appendChild(subj);
+
+            const status = document.createElement("span");
+            status.className = "pq-status";
+            status.textContent = issue.status || "";
+            li.appendChild(status);
+
+            list.appendChild(li);
+        }
+    } catch (_) { /* silently ignore */ }
 }
 
 function buildGroups(versions) {
@@ -164,6 +239,7 @@ async function loadVersions() {
         featured.hidden = !(current || previous);
         allHeading.hidden = false;
 
+        await renderPatchQueue(data.versions);
         renderGroups(groupsContainer, buildGroups(data.versions));
 
         if (data.last_fetched_at) {

@@ -33,18 +33,23 @@
             </div>
         </div>
 
-        <p id="issue-count" class="muted small" hidden></p>
+        <div id="issue-count-bar" class="issue-count-bar" hidden>
+            <input type="search" id="issue-filter" class="issue-filter" placeholder="Filter by ref or subject…">
+            <span id="issue-count" class="muted small"></span>
+        </div>
 
         <div id="issues" class="issues" hidden>
-            <div class="issue-row issue-header">
-                <span class="col-id">Ref</span>
-                <span class="col-subject">Subject</span>
-                <span class="col-assigned">Assigned</span>
-                <span class="col-priority">Priority</span>
-                <span class="col-status">Status</span>
-                <span class="col-risk">Risk</span>
+            <div id="issues-scroll">
+                <div class="issue-row issue-header">
+                    <span class="col-id">Ref</span>
+                    <span class="col-subject">Subject</span>
+                    <span class="col-assigned">Assigned</span>
+                    <span class="col-priority">Priority</span>
+                    <span class="col-status">Status</span>
+                    <span class="col-risk">Risk</span>
+                </div>
+                <div id="issues-list"></div>
             </div>
-            <div id="issues-list"></div>
         </div>
     </main>
 

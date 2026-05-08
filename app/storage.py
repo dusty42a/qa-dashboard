@@ -52,11 +52,19 @@ async def upsert_versions(conn: aiosqlite.Connection, versions: list[dict[str, A
 
 async def list_versions_cached(conn: aiosqlite.Connection) -> list[dict[str, Any]]:
     cur = await conn.execute(
-        "SELECT id, name, status, description, due_date FROM versions ORDER BY name"
+        """
+        SELECT v.id, v.name, v.status, v.description, v.due_date,
+               COUNT(i.id) AS issue_count
+        FROM versions v
+        LEFT JOIN issues i ON i.version_id = v.id
+        GROUP BY v.id
+        ORDER BY v.name
+        """
     )
     rows = await cur.fetchall()
     return [
-        {"id": r[0], "name": r[1], "status": r[2], "description": r[3], "due_date": r[4]}
+        {"id": r[0], "name": r[1], "status": r[2], "description": r[3],
+         "due_date": r[4], "issue_count": r[5]}
         for r in rows
     ]
 

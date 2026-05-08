@@ -8,8 +8,13 @@
 </head>
 <body>
     <header>
-        <h1>QA Dashboard</h1>
-        <p class="muted">Pick a target version.</p>
+        <div class="header-inner">
+            <div>
+                <h1>QA Dashboard</h1>
+                <p class="muted">Pick a target version.</p>
+            </div>
+            <img src="/static/wb_logo.png" alt="Workbooks" class="header-logo">
+        </div>
     </header>
 
     <main>
@@ -27,6 +32,20 @@
                 <span class="featured-meta muted"></span>
             </div>
         </section>
+
+        <div id="patch-queue-section" class="patch-queue-section" hidden>
+            <div class="patch-queue-header">
+                <div>
+                    <span class="featured-label">Patch Queue</span>
+                    <a class="patch-queue-name featured-name" href="#"></a>
+                </div>
+                <div class="patch-queue-header-right">
+                    <span class="patch-queue-meta featured-meta muted"></span>
+                    <span class="patch-queue-count issue-count-badge"></span>
+                </div>
+            </div>
+            <ul class="patch-queue-issues"></ul>
+        </div>
 
         <h2 class="all-versions-heading" id="all-heading" hidden>All versions</h2>
         <div id="version-groups"></div>
