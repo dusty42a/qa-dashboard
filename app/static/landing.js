@@ -75,23 +75,19 @@ function renderFeaturedCard(el, version) {
         badge.textContent = version.issue_count + " issues";
         meta.appendChild(badge);
     }
+
+    const review = el.querySelector(".featured-review");
+    if (review) {
+        if (version.total_changesets > 0) {
+            review.textContent = version.scored_changesets + " of " + version.total_changesets + " commits reviewed";
+        } else {
+            review.textContent = "";
+        }
+    }
 }
 
 function findPatchQueue(versions) {
-    let best = null;
-    // Prefer open 3-part release versions; fall back to any status.
-    for (const open of [true, false]) {
-        for (const v of versions) {
-            const parsed = parseRelease(v.name);
-            if (!parsed || parsed[2] === 0) continue;
-            if (open && v.status !== "open") continue;
-            if (!best || compare(parsed, best._parsed) > 0) {
-                best = { ...v, _parsed: parsed };
-            }
-        }
-        if (best) break;
-    }
-    return best;
+    return versions.find(v => v.name === "Patch Queue") || null;
 }
 
 async function renderPatchQueue(versions) {
@@ -114,6 +110,8 @@ async function renderPatchQueue(versions) {
 
         const countEl = section.querySelector(".patch-queue-count");
         countEl.textContent = data.issues.length + " issues";
+        countEl.className = "patch-queue-count " + (data.issues.length > 0 ? "issue-count-red" : "issue-count-badge");
+        section.classList.toggle("has-issues", data.issues.length > 0);
 
         const list = section.querySelector(".patch-queue-issues");
         list.innerHTML = "";

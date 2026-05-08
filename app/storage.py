@@ -54,9 +54,13 @@ async def list_versions_cached(conn: aiosqlite.Connection) -> list[dict[str, Any
     cur = await conn.execute(
         """
         SELECT v.id, v.name, v.status, v.description, v.due_date,
-               COUNT(i.id) AS issue_count
+               COUNT(DISTINCT i.id)   AS issue_count,
+               COUNT(DISTINCT c.revision) AS total_changesets,
+               COUNT(DISTINCT ra.revision) AS scored_changesets
         FROM versions v
-        LEFT JOIN issues i ON i.version_id = v.id
+        LEFT JOIN issues i  ON i.version_id = v.id
+        LEFT JOIN changesets c ON c.issue_id = i.id
+        LEFT JOIN risk_assessments ra ON ra.revision = c.revision
         GROUP BY v.id
         ORDER BY v.name
         """
@@ -64,7 +68,8 @@ async def list_versions_cached(conn: aiosqlite.Connection) -> list[dict[str, Any
     rows = await cur.fetchall()
     return [
         {"id": r[0], "name": r[1], "status": r[2], "description": r[3],
-         "due_date": r[4], "issue_count": r[5]}
+         "due_date": r[4], "issue_count": r[5],
+         "total_changesets": r[6], "scored_changesets": r[7]}
         for r in rows
     ]
 

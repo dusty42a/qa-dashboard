@@ -20,23 +20,25 @@
     <main>
         <p id="status" class="muted">Loading versions…</p>
 
-        <section id="featured" class="featured" hidden>
-            <div class="featured-card current" id="featured-current" hidden>
-                <span class="featured-label">Current release</span>
-                <a class="featured-name" href="#"></a>
-                <span class="featured-meta muted"></span>
-            </div>
-            <div class="featured-card previous" id="featured-previous" hidden>
-                <span class="featured-label">Previous release</span>
-                <a class="featured-name" href="#"></a>
-                <span class="featured-meta muted"></span>
-            </div>
-        </section>
+        <div class="releases-layout">
+            <section id="featured" class="featured" hidden>
+                <div class="featured-card current" id="featured-current" hidden>
+                    <span class="featured-label">Current release</span>
+                    <a class="featured-name" href="#"></a>
+                    <span class="featured-meta muted"></span>
+                    <span class="featured-review small muted"></span>
+                </div>
+                <div class="featured-card previous" id="featured-previous" hidden>
+                    <span class="featured-label">Previous release</span>
+                    <a class="featured-name" href="#"></a>
+                    <span class="featured-meta muted"></span>
+                    <span class="featured-review small muted"></span>
+                </div>
+            </section>
 
-        <div id="patch-queue-section" class="patch-queue-section" hidden>
+            <div id="patch-queue-section" class="patch-queue-section" hidden>
             <div class="patch-queue-header">
                 <div>
-                    <span class="featured-label">Patch Queue</span>
                     <a class="patch-queue-name featured-name" href="#"></a>
                 </div>
                 <div class="patch-queue-header-right">
@@ -45,6 +47,8 @@
                 </div>
             </div>
             <ul class="patch-queue-issues"></ul>
+        </div>
+
         </div>
 
         <h2 class="all-versions-heading" id="all-heading" hidden>All versions</h2>

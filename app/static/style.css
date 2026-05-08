@@ -35,11 +35,18 @@ header p { margin: 0; }
 
 main { margin-top: 0.75rem; }
 
-.featured {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+.releases-layout {
+    display: flex;
     gap: 1rem;
     margin: 1rem 0 1.5rem;
+    align-items: stretch;
+}
+.featured {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    flex: 3;
+    margin: 0;
 }
 .featured-card {
     border: 1px solid var(--border);
@@ -71,12 +78,15 @@ main { margin-top: 0.75rem; }
 .featured-meta { font-size: 0.85em; }
 
 .patch-queue-section {
-    border: 1px solid var(--border);
+    border: 1px solid #888;
     border-radius: 6px;
     background: #fff;
     padding: 1rem 1.25rem;
-    margin: 0 0 1rem;
+    flex: 2;
+    min-width: 0;
 }
+.patch-queue-section.has-issues { border-color: #e07070; box-shadow: 0 0 0 2px rgba(224, 112, 112, 0.15); }
+.issue-count-red { color: #c0392b; font-weight: 600; }
 .patch-queue-header {
     display: flex;
     justify-content: space-between;
