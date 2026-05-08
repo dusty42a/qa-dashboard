@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <!-- 3/4 slice (green): top clockwise to left -->
+  <path d="M16 16 L16 2 A14 14 0 1 1 2 16 Z" fill="#2c7a3a"/>
+  <!-- 1/4 slice (red): left clockwise back to top -->
+  <path d="M16 16 L2 16 A14 14 0 0 1 16 2 Z" fill="#c0392b"/>
+</svg>

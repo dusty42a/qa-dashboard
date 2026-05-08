@@ -10,3 +10,4 @@ data/*.sqlite-*
 dist/
 build/
 uvicorn.*.log
+full_review.log

@@ -186,6 +186,7 @@ main { margin-top: 1rem; }
 /* Issue rows: 6-column grid shared by header + each issue summary.
    Order: Ref · Subject (600px) · Assigned · Priority · Status · Risk. */
 .issues { margin-top: 1rem; }
+#issues-list { max-height: 500px; overflow-y: auto; }
 .issue-row {
     display: grid;
     grid-template-columns: 5.5rem 700px 9rem 6rem 7rem 5rem;
