@@ -311,12 +311,13 @@ async function loadVersion() {
 
     const title = document.getElementById("title");
     const status = document.getElementById("status");
+    const issueCount = document.getElementById("issue-count");
     const notFound = document.getElementById("not-found");
     const issuesEl = document.getElementById("issues");
     const list = document.getElementById("issues-list");
     const lastFetched = document.getElementById("last-fetched");
 
-    title.textContent = "Target version: " + name;
+    title.textContent = "Dashboard - " + name;
 
     try {
         const resp = await fetch("/api/v/" + encodeURIComponent(name));
@@ -342,7 +343,9 @@ async function loadVersion() {
         for (const issue of sorted) {
             list.appendChild(renderIssue(issue, redmineBase));
         }
-        status.textContent = data.issues.length + " issues";
+        status.innerHTML = '<a href="/">← All versions</a>';
+        issueCount.textContent = '(' + data.issues.length + ' issues)';
+        issueCount.hidden = false;
         if (data.last_fetched_at) {
             lastFetched.textContent = "Upstream last refreshed: " + data.last_fetched_at;
         } else {

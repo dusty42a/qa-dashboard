@@ -8,9 +8,13 @@
 </head>
 <body>
     <header>
-        <p><a href="/">&larr; All versions</a></p>
-        <h1 id="title">Loading…</h1>
-        <p id="status" class="muted"></p>
+        <div class="header-inner">
+            <div>
+                <h1 id="title">Loading…</h1>
+                <p id="status" class="muted"><a href="/">← All versions</a></p>
+            </div>
+            <img src="/static/wb_logo.png" alt="Workbooks" class="header-logo">
+        </div>
     </header>
 
     <main>
@@ -28,6 +32,8 @@
                 <ol class="top-risks-list"></ol>
             </div>
         </div>
+
+        <p id="issue-count" class="muted small" hidden></p>
 
         <div id="issues" class="issues" hidden>
             <div class="issue-row issue-header">
