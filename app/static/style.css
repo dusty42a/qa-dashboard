@@ -150,7 +150,7 @@ main { margin-top: 0.75rem; }
 }
 
 .top-risks {
-    flex: 0 1 500px;
+    flex: 0 1 620px;
     min-width: 0;
     border-left: 1px solid var(--border);
     padding-left: 1.5rem;
@@ -172,7 +172,7 @@ main { margin-top: 0.75rem; }
 }
 .top-risk-item {
     display: grid;
-    grid-template-columns: 4rem 4.5rem minmax(0, 1fr);
+    grid-template-columns: 4rem 4.5rem minmax(0, 390px);
     gap: 0.6rem;
     align-items: center;
     padding: 0.25rem 0;
