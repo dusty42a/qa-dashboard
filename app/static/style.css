@@ -136,7 +136,7 @@ main { margin-top: 0.75rem; }
 }
 .version-group-summary {
     cursor: pointer;
-    padding: 0.6rem 1rem;
+    padding: 0.45rem 1rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
