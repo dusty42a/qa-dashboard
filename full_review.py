@@ -30,7 +30,7 @@ _CACHE_WRITE = 1.00 / 1_000_000
 _CACHE_READ = 0.08 / 1_000_000
 
 
-_CHAR_CAP = 400_000  # ~100k tokens; hard ceiling before line-cap kicks in
+_CHAR_CAP = 100_000  # ~25k tokens; hard ceiling before line-cap kicks in (minified CSS can be very token-dense)
 
 
 def _svn_diff(revision: str) -> str | None:
@@ -170,7 +170,7 @@ async def run(version_id: int, cost_cap: float) -> None:
             print(f"\nABORTED: ${cost_cap:.2f} cap reached after {scored} commits.")
             return
 
-        await asyncio.sleep(15)  # ~4 req/min, stays under 10k token/min limit
+        await asyncio.sleep(30)  # ~2 req/min, stays under 10k token/min limit
 
     print(f"\nDone: {scored}/{len(candidates)} commits scored.  Total cost: ${cumulative:.4f}")
 
