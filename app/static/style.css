@@ -358,6 +358,59 @@ details.issue[open] > summary { background: #f7f7f7; }
 .risk-high    { background: var(--risk-high-bg);    color: var(--risk-high-fg); }
 .risk.pending { background: var(--risk-pending-bg); color: var(--risk-pending-fg); }
 
+#confidence-areas {
+    margin: 1rem 0 1.5rem;
+}
+.confidence-heading {
+    margin: 0 0 0.15rem;
+    font-size: 0.85em;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    font-weight: 600;
+}
+.confidence-subtitle {
+    margin: 0 0 0.5rem;
+}
+.confidence-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 0.3rem;
+}
+.confidence-item {
+    display: flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.3rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: #fff;
+    font-size: 0.88em;
+    min-width: 0;
+}
+.confidence-item-name {
+    flex: 1;
+    min-width: 0;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.confidence-count {
+    display: inline-block;
+    padding: 0.05rem 0.4rem;
+    border-radius: 999px;
+    font-size: 0.78em;
+    font-weight: 600;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+.confidence-count-high { background: var(--risk-high-bg); color: var(--risk-high-fg); }
+.confidence-count-med  { background: var(--risk-med-bg);  color: var(--risk-med-fg); }
+
 footer {
     margin-top: 2rem;
     padding-top: 1rem;

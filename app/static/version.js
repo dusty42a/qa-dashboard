@@ -261,6 +261,44 @@ function renderTopRisks(issues, redmineBase) {
     wrap.hidden = false;
 }
 
+function renderConfidenceAreas(data) {
+    const wrap = document.getElementById("confidence-areas");
+    if (!data || !data.areas || !data.areas.length) {
+        wrap.hidden = true;
+        return;
+    }
+    const subtitle = wrap.querySelector(".confidence-subtitle");
+    subtitle.textContent =
+        "Based on " + data.scored_commits + " of " + data.total_commits + " commits reviewed";
+
+    const list = wrap.querySelector(".confidence-list");
+    list.innerHTML = "";
+    for (const area of data.areas) {
+        const li = document.createElement("li");
+        li.className = "confidence-item";
+
+        const name = document.createElement("span");
+        name.className = "confidence-item-name";
+        name.textContent = area.name;
+        li.appendChild(name);
+
+        if (area.high > 0) {
+            const b = document.createElement("span");
+            b.className = "confidence-count confidence-count-high";
+            b.textContent = "HIGH ×" + area.high;
+            li.appendChild(b);
+        }
+        if (area.med > 0) {
+            const b = document.createElement("span");
+            b.className = "confidence-count confidence-count-med";
+            b.textContent = "MED ×" + area.med;
+            li.appendChild(b);
+        }
+        list.appendChild(li);
+    }
+    wrap.hidden = false;
+}
+
 function renderStatusChart(issues) {
     const wrap = document.getElementById("status-chart-wrap");
     const canvas = document.getElementById("status-chart");
@@ -329,6 +367,7 @@ async function loadVersion() {
             issuesEl.hidden = true;
             document.getElementById("status-chart-wrap").hidden = true;
             document.getElementById("top-risks").hidden = true;
+            document.getElementById("confidence-areas").hidden = true;
             status.textContent = "";
             return;
         }
@@ -340,6 +379,7 @@ async function loadVersion() {
         renderStatusChart(data.issues);
         const redmineBase = data.redmine_base || "";
         renderTopRisks(data.issues, redmineBase);
+        renderConfidenceAreas(data.confidence_areas);
 
         list.innerHTML = "";
         const sorted = sortIssuesByRisk(data.issues);

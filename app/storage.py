@@ -269,6 +269,76 @@ async def last_fetched_at(conn: aiosqlite.Connection, scope: str) -> str | None:
     return row[0] if row else None
 
 
+# ---- confidence areas -------------------------------------------------------
+
+_WEIGHTS = {"high": 5.0, "med": 2.0, "low": 0.2}
+
+
+async def build_confidence_areas(
+    conn: aiosqlite.Connection,
+    version_id: int,
+    *,
+    min_score: float = 3.0,
+    limit: int = 12,
+) -> dict[str, Any]:
+    commit_cur = await conn.execute(
+        """
+        SELECT COUNT(DISTINCT c.revision), COUNT(DISTINCT ra.revision)
+        FROM changesets c
+        JOIN issues i ON i.id = c.issue_id
+        LEFT JOIN risk_assessments ra ON ra.revision = c.revision
+        WHERE i.version_id = ?
+        """,
+        (version_id,),
+    )
+    counts = await commit_cur.fetchone()
+    total_commits = counts[0] if counts else 0
+    scored_commits = counts[1] if counts else 0
+
+    area_cur = await conn.execute(
+        """
+        SELECT ra.affected_json, ra.level
+        FROM risk_assessments ra
+        JOIN changesets c ON c.revision = ra.revision
+        JOIN issues i ON i.id = c.issue_id
+        WHERE i.version_id = ?
+        """,
+        (version_id,),
+    )
+    rows = await area_cur.fetchall()
+
+    stats: dict[str, dict[str, Any]] = {}
+    for affected_json, level in rows:
+        if not affected_json:
+            continue
+        try:
+            affected = json.loads(affected_json)
+        except (ValueError, TypeError):
+            continue
+        w = _WEIGHTS.get(level, 0)
+        for raw in affected:
+            area = raw.strip() if isinstance(raw, str) else ""
+            if not area:
+                continue
+            key = area.lower()
+            if key not in stats:
+                stats[key] = {"name": area, "high": 0, "med": 0, "low": 0, "score": 0.0}
+            stats[key][level] = stats[key].get(level, 0) + 1
+            stats[key]["score"] += w
+
+    ranked = [
+        v for v in stats.values()
+        if v["score"] >= min_score and (v["high"] > 0 or v["med"] > 0)
+    ]
+    ranked.sort(key=lambda x: x["score"], reverse=True)
+    return {
+        "areas": [{"name": r["name"], "high": r["high"], "med": r["med"], "low": r["low"]}
+                  for r in ranked[:limit]],
+        "scored_commits": scored_commits,
+        "total_commits": total_commits,
+    }
+
+
 # ---- aggregate payload ------------------------------------------------------
 
 
@@ -304,5 +374,6 @@ async def build_version_payload(
     return {
         "version": version,
         "issues": issues,
+        "confidence_areas": await build_confidence_areas(conn, version["id"]),
         "last_fetched_at": await last_fetched_at(conn, f"version:{version['id']}"),
     }
