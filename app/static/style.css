@@ -359,7 +359,7 @@ details.issue[open] > summary { background: #f7f7f7; }
 .risk.pending { background: var(--risk-pending-bg); color: var(--risk-pending-fg); }
 
 #confidence-areas {
-    margin: 1rem 0 1.5rem;
+    margin: 2.5rem 0 1.5rem;
 }
 .confidence-heading {
     margin: 0 0 0.15rem;

@@ -273,84 +273,6 @@ async def last_fetched_at(conn: aiosqlite.Connection, scope: str) -> str | None:
 
 _WEIGHTS = {"high": 5.0, "med": 2.0, "low": 0.2}
 
-# Maps lowercase raw values → canonical display name.
-_AREA_ALIASES: dict[str, str] = {
-    # Authentication / session
-    "auth": "Authentication",
-    "authentication": "Authentication",
-    "session management": "Authentication",
-    # CSS / theming
-    "css": "CSS / Theming",
-    "css variables": "CSS / Theming",
-    "ui/css": "CSS / Theming",
-    "ui-styling": "CSS / Theming",
-    "ui styling": "CSS / Theming",
-    "theme styling": "CSS / Theming",
-    "theming": "CSS / Theming",
-    "theme-wb-green-2024": "CSS / Theming",
-    "wb-theme-wb-green-2024/colour-profiles": "CSS / Theming",
-    # Test infrastructure / CI
-    "testing": "Test Infrastructure",
-    "test-infrastructure": "Test Infrastructure",
-    "test infrastructure": "Test Infrastructure",
-    "testing infrastructure": "Test Infrastructure",
-    "testcafe": "Test Infrastructure",
-    "browserstack": "Test Infrastructure",
-    "browserstack-integration": "Test Infrastructure",
-    "ci": "CI / Build",
-    "ci/cd": "CI / Build",
-    "ci/cd build process": "CI / Build",
-    "ci/build": "CI / Build",
-    # Notifications / email
-    "email": "Email",
-    "email notifications": "Email Notifications",
-    "notifications": "Notifications",
-    # UI / components
-    "ui": "UI",
-    "ui components": "UI Components",
-    # Database / persistence
-    "database": "Database",
-    "migrations": "Database Migrations",
-    # API
-    "api": "API",
-}
-
-import re as _re
-_FILE_EXT_RE = _re.compile(r'\.[a-z]{2,5}$', _re.IGNORECASE)
-_PATH_PREFIXES = (
-    "trunk/", "branches/", "workbooks_app/", "testing/",
-    "stylesheets/", "svn:", "svn+ssh",
-)
-
-
-def _friendly_area(raw: str) -> str | None:
-    """Return a human-friendly display name, or None if raw looks like a file path."""
-    area = raw.strip()
-    if not area:
-        return None
-    # Filter file paths: anything with slashes that has a file extension,
-    # multiple path segments, or a known path prefix.
-    if "/" in area:
-        last_seg = area.split("/")[-1]
-        low = area.lower()
-        if (
-            _FILE_EXT_RE.search(last_seg)
-            or area.count("/") >= 2
-            or any(low.startswith(p) for p in _PATH_PREFIXES)
-        ):
-            return None
-    # Filter plain filenames (e.g. wb_test.rake, comments.css, jenkins.sh)
-    if _FILE_EXT_RE.search(area) and " " not in area:
-        return None
-    # Alias lookup (case-insensitive)
-    key = area.lower()
-    if key in _AREA_ALIASES:
-        return _AREA_ALIASES[key]
-    # Title-case slugs/lowercase strings; leave mixed-case as-is
-    if area == area.lower() or area.replace("-", "").replace("_", "") == area.replace("-", "").replace("_", "").lower():
-        return area.replace("-", " ").replace("_", " ").title()
-    return area
-
 
 async def build_confidence_areas(
     conn: aiosqlite.Connection,
@@ -359,6 +281,11 @@ async def build_confidence_areas(
     min_score: float = 3.0,
     limit: int = 12,
 ) -> dict[str, Any]:
+    """Aggregate by Redmine issue category, one entry per issue (worst risk level).
+
+    Using the issue's own category avoids invented/unmapped free-text labels and
+    produces names that match the team's existing confidence test areas.
+    """
     commit_cur = await conn.execute(
         """
         SELECT COUNT(DISTINCT c.revision), COUNT(DISTINCT ra.revision)
@@ -373,36 +300,34 @@ async def build_confidence_areas(
     total_commits = counts[0] if counts else 0
     scored_commits = counts[1] if counts else 0
 
-    area_cur = await conn.execute(
+    # One row per issue: the worst risk level across all its scored commits.
+    issue_cur = await conn.execute(
         """
-        SELECT ra.affected_json, ra.level
-        FROM risk_assessments ra
-        JOIN changesets c ON c.revision = ra.revision
-        JOIN issues i ON i.id = c.issue_id
+        SELECT
+            json_extract(i.raw_json, '$.category.name') AS category,
+            CASE MAX(CASE ra.level WHEN 'high' THEN 3 WHEN 'med' THEN 2 WHEN 'low' THEN 1 ELSE 0 END)
+                WHEN 3 THEN 'high' WHEN 2 THEN 'med' WHEN 1 THEN 'low' END AS worst_level
+        FROM issues i
+        JOIN changesets c  ON c.issue_id = i.id
+        JOIN risk_assessments ra ON ra.revision = c.revision
         WHERE i.version_id = ?
+        GROUP BY i.id
+        HAVING category IS NOT NULL
         """,
         (version_id,),
     )
-    rows = await area_cur.fetchall()
+    rows = await issue_cur.fetchall()
 
     stats: dict[str, dict[str, Any]] = {}
-    for affected_json, level in rows:
-        if not affected_json:
-            continue
-        try:
-            affected = json.loads(affected_json)
-        except (ValueError, TypeError):
+    for category, level in rows:
+        if not category or not level:
             continue
         w = _WEIGHTS.get(level, 0)
-        for raw in affected:
-            friendly = _friendly_area(raw if isinstance(raw, str) else "")
-            if not friendly:
-                continue
-            key = friendly.lower()
-            if key not in stats:
-                stats[key] = {"name": friendly, "high": 0, "med": 0, "low": 0, "score": 0.0}
-            stats[key][level] = stats[key].get(level, 0) + 1
-            stats[key]["score"] += w
+        key = category.lower()
+        if key not in stats:
+            stats[key] = {"name": category, "high": 0, "med": 0, "low": 0, "score": 0.0}
+        stats[key][level] = stats[key].get(level, 0) + 1
+        stats[key]["score"] += w
 
     ranked = [
         v for v in stats.values()
