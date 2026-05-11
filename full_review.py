@@ -40,9 +40,9 @@ def _svn_diff(revision: str) -> str | None:
         r = subprocess.run(
             [settings.svn_binary, "diff", "--change", revision, settings.svn_repo_url,
              "--no-auth-cache", "--non-interactive"],
-            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=60,
+            capture_output=True, timeout=60,
         )
-        raw = r.stdout or None
+        raw = r.stdout.decode("utf-8", errors="replace") if r.stdout else None
         if raw and len(raw) > _CHAR_CAP:
             raw = raw[:_CHAR_CAP] + "\n[diff truncated: exceeded character limit]"
         return raw
