@@ -48,8 +48,11 @@ RISK_TOOL = {
                 "type": "array",
                 "items": {"type": "string"},
                 "description": (
-                    "Functional areas touched (e.g. 'auth', 'reports', 'svn:trunk/lib/x.php'). "
-                    "1-5 items."
+                    "Human-readable product areas touched. Use title case and describe the "
+                    "feature or module, not the file "
+                    "(e.g. 'Authentication', 'PDF Reports', 'Email Notifications', "
+                    "'CSS / Theming', 'Test Infrastructure'). "
+                    "Never use file paths. 1-5 items."
                 ),
             },
         },
